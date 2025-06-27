@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cubo con contorno blanco</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: black; /* fondo negro */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    canvas.webgl {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <canvas class="webgl"></canvas>
+
+  <script src="https://cdn.jsdelivr.net/npm/three@0.153.0/build/three.min.js"></script>
+  <script>
+    // Escena
+    const escena = new THREE.Scene();
+    escena.background = new THREE.Color('black'); // fondo negro
+
+    // Cubo verde
+    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+    const geometria = new THREE.BoxGeometry();
+    const cubo = new THREE.Mesh(geometria, material);
+    escena.add(cubo);
+
+    // Contorno blanco
+    const edges = new THREE.EdgesGeometry(geometria);
+    const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff });
+    const contorno = new THREE.LineSegments(edges, lineMaterial);
+    cubo.add(contorno);
+
+    // Cámara ortográfica
+    let ancho = window.innerWidth * 0.8;
+    let alto = ancho * 9 / 16 * 0.8;
+    let resolucion = ancho / alto;
+    const camara = new THREE.OrthographicCamera(-resolucion, resolucion, 1, -1, 0.1, 1000);
+    camara.position.set(3, 3, 3);
+    camara.lookAt(cubo.position);
+
+    // Canvas y renderizador
+    const canvas = document.querySelector('.webgl');
+    const renderizador = new THREE.WebGLRenderer({ canvas: canvas });
+    renderizador.setSize(ancho, alto);
+
+    // Animación
+    function Update() {
+      requestAnimationFrame(Update);
+      cubo.rotation.y += 0.01;
+      renderizador.render(escena, camara);
+    }
+
+    Update();
+
+    // Ajustar tamaño al redimensionar ventana
+    window.addEventListener('resize', () => {
+      ancho = window.innerWidth * 0.8;
+      alto = ancho * 9 / 16 * 0.8;
+      resolucion = ancho / alto;
+      renderizador.setSize(ancho, alto);
+      camara.left = -resolucion;
+      camara.right = resolucion;
+      camara.updateProjectionMatrix();
+    });
+  </script>
+</body>
+</html>
